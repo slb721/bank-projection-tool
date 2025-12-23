@@ -39,6 +39,12 @@ export default function Home() {
   const [lifeEvents, setLifeEvents] = useState<LifeEvent[]>([]);
   const [status, setStatus] = useState<string | null>(null);
 
+  // Simple email magic-link login
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginSending, setLoginSending] = useState(false);
+  const [loginMessage, setLoginMessage] = useState<string | null>(null);
+  const [loginError, setLoginError] = useState<string | null>(null);
+
   const [scenarioForm, setScenarioForm] = useState<FormState<{ name: string }>>({
     name: '',
     submitting: false,
@@ -86,12 +92,41 @@ export default function Home() {
     error: null,
   });
 
+  const handleMagicLinkSignIn = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoginError(null);
+    setLoginMessage(null);
+
+    if (!loginEmail) {
+      setLoginError('Please enter your email.');
+      return;
+    }
+
+    setLoginSending(true);
+
+    const { error } = await supabase.auth.signInWithOtp({
+      email: loginEmail,
+      options: {
+        emailRedirectTo: `${window.location.origin}/`,
+      },
+    });
+
+    setLoginSending(false);
+
+    if (error) {
+      setLoginError(error.message);
+    } else {
+      setLoginMessage(
+        'Magic link sent. Check your email and open the link on this device to continue.'
+      );
+    }
+  };
+
   useEffect(() => {
     const bootstrap = async () => {
       const { data } = await supabase.auth.getUser();
       const user = data.user;
       if (!user) {
-        setStatus('Please sign in to see your cash projections.');
         setLoading(false);
         return;
       }
@@ -286,16 +321,52 @@ export default function Home() {
   if (!userId) {
     return (
       <main className="min-h-screen flex items-center justify-center px-6">
-        <div className="card max-w-xl w-full p-10 text-center">
+        <div className="card max-w-md w-full p-8">
           <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-purple-500/20 text-purple-200">
             <ShieldCheckIcon className="h-8 w-8" />
           </div>
-          <h1 className="text-2xl font-semibold mb-2">Sign in to continue</h1>
-          <p className="text-slate-400 mb-6">
-            We couldn’t find an active Supabase session. Sign in using your existing flow, then
-            refresh this page to load your cash projections.
+          <h1 className="text-2xl font-semibold mb-2 text-center">
+            Sign in to use your projections
+          </h1>
+          <p className="text-slate-400 mb-6 text-sm text-center">
+            Enter your email and we&apos;ll send you a secure magic link. Open it on this device to
+            load your scenarios, accounts, paychecks, and events.
           </p>
-          <div className="pill mx-auto w-fit">Supabase-secured • RLS enforced</div>
+
+          <form onSubmit={handleMagicLinkSignIn} className="space-y-3">
+            <div className="space-y-1">
+              <label htmlFor="email">Email</label>
+              <input
+                id="email"
+                type="email"
+                value={loginEmail}
+                onChange={(e) => setLoginEmail(e.target.value)}
+                placeholder="you@example.com"
+                className="w-full"
+                required
+              />
+            </div>
+            <button
+              type="submit"
+              className="btn-primary w-full"
+              disabled={loginSending}
+            >
+              {loginSending ? 'Sending magic link…' : 'Send magic link'}
+            </button>
+          </form>
+
+          {loginMessage && (
+            <p className="mt-4 text-xs text-emerald-300 text-center">{loginMessage}</p>
+          )}
+          {loginError && (
+            <p className="mt-4 text-xs text-amber-300 text-center">{loginError}</p>
+          )}
+
+          <div className="mt-6 flex justify-center">
+            <div className="pill mx-auto w-fit text-[11px]">
+              Supabase-secured • Row Level Security enforced
+            </div>
+          </div>
         </div>
       </main>
     );
