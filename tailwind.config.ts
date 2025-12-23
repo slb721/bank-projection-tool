@@ -8,10 +8,21 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        display: ['Inter', 'ui-sans-serif', 'system-ui'],
+      },
+      colors: {
+        brand: {
+          DEFAULT: '#7c3aed',
+          soft: '#a855f7',
+          blue: '#38bdf8',
+        },
+      },
+      boxShadow: {
+        'brand-glow': '0 20px 80px rgba(124, 58, 237, 0.25)',
+      },
       backgroundImage: {
-        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-        'gradient-conic':
-          'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
+        'grid-slate': 'linear-gradient(to right, rgba(148,163,184,0.08) 1px, transparent 1px), linear-gradient(to bottom, rgba(148,163,184,0.08) 1px, transparent 1px)',
       },
     },
   },
