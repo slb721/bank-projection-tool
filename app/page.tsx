@@ -235,8 +235,9 @@ export default function Home() {
     e.preventDefault();
     if (!userId || !selectedScenarioId) return;
     setAccountForm((f) => ({ ...f, submitting: true, error: null }));
+    const { current_balance } = accountForm;
     const { error } = await supabase.from('accounts').insert({
-      ...accountForm,
+      current_balance,
       user_id: userId,
       scenario_id: selectedScenarioId,
     });
@@ -252,8 +253,12 @@ export default function Home() {
     e.preventDefault();
     if (!userId || !selectedScenarioId) return;
     setPaycheckForm((f) => ({ ...f, submitting: true, error: null }));
+    const { name, amount, schedule, next_date } = paycheckForm;
     const { error } = await supabase.from('paychecks').insert({
-      ...paycheckForm,
+      name,
+      amount,
+      schedule,
+      next_date,
       user_id: userId,
       scenario_id: selectedScenarioId,
     });
@@ -269,8 +274,12 @@ export default function Home() {
     e.preventDefault();
     if (!userId || !selectedScenarioId) return;
     setCardForm((f) => ({ ...f, submitting: true, error: null }));
+    const { name, next_due_date, next_due_amount, avg_future_amount } = cardForm;
     const { error } = await supabase.from('credit_cards').insert({
-      ...cardForm,
+      name,
+      next_due_date,
+      next_due_amount,
+      avg_future_amount,
       user_id: userId,
       scenario_id: selectedScenarioId,
     });
@@ -286,8 +295,16 @@ export default function Home() {
     e.preventDefault();
     if (!userId || !selectedScenarioId) return;
     setEventForm((f) => ({ ...f, submitting: true, error: null }));
+    const { type, label, amount, start_date, end_date, recurrence, related_paycheck_id } =
+      eventForm;
     const { error } = await supabase.from('life_events').insert({
-      ...eventForm,
+      type,
+      label,
+      amount,
+      start_date,
+      end_date,
+      recurrence,
+      related_paycheck_id,
       user_id: userId,
       scenario_id: selectedScenarioId,
     });
